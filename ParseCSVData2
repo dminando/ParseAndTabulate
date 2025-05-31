@@ -1,0 +1,40 @@
+// Version 3 - check data at each stage
+
+console.log("Query Started");                              // Indicate when the query begins
+const uploadedFile = csvUpload.files[0];
+console.log("uploadedFile:", uploadedFile);                // Inspect the uploadedFile object
+
+let data = [];                                             // Initialize data outside the if block 
+console.log("uploadedFile just before if:", uploadedFile); // where do you think youre going pal (data)
+if (uploadedFile && uploadedFile.data) {
+    const fileContent = uploadedFile.data;
+    console.log("fileContent:", fileContent);              // Log the raw CSV content
+    const lines = fileContent.split('\n').map(line => line.trim());
+    console.log("lines:", lines);                          // Log the array of lines
+
+    if (lines.length > 0) {
+        const headers = lines[0].split(',').map(header => header.trim());
+        console.log("headers:", headers);                  // Log the headers array
+
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',').map(value => value.trim());
+            console.log("values (row):", values);          // Log the values for each row
+            if (values.length === headers.length) {
+                const row = {};
+                for (let j = 0; j < headers.length; j++) {
+                    row[headers[j]] = values[j];
+                }
+                data.push(row);
+                console.log("row object:", row);           // Log the constructed row object
+            }
+        }
+        console.log("Data before return:", data);          // Log the final data array
+        return data;
+    } else {
+        console.log("CSV file is empty");
+        return [];
+    }
+} else {
+    console.log("No file or file data available");
+    return [];
+}
