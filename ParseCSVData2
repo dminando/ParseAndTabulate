@@ -1,4 +1,4 @@
-// Version 3 - check data at each stage
+// Version 2 - check data at each stage
 
 console.log("Query Started");                              // Indicate when the query begins
 const uploadedFile = csvUpload.files[0];
