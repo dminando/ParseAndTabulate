@@ -1,0 +1,28 @@
+// Get the first file from the file upload component
+const uploadedFile = csvUpload.files[0];
+
+if (uploadedFile && uploadedFile.data) { // Check both uploadedFile and uploadedFile.data
+  const fileContent = uploadedFile.data; // This is the content of the CSV as a string
+  const lines = fileContent.split('\n').map(line => line.trim()); // Split CSV string into array of lines and map to trim whitespace from each line
+
+  if (lines.length > 0) {
+    const headers = lines[0].split(',').map(header => header.trim()); // Split first line (header row) to get header names
+    const data = []; 
+
+    for (let i = 1; i < lines.length; i++) {  // iterate through the remaining lines (data rows)
+      const values = lines[i].split(',').map(value => value.trim()); // split each data row to an array of values
+      if (values.length === headers.length) { 
+        const row = {};
+        for (let j = 0; j < headers.length; j++) {  // create an object for each row
+          row[headers[j]] = values[j];  
+        }
+        data.push(row);
+      }
+    }
+    return data; // return an array of the row objects created
+  } else {
+    return []; // Return an empty array if the file is empty
+  }
+} else {
+  return []; // Return an empty array if no file is uploaded yet
+}
