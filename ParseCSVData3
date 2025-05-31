@@ -1,0 +1,102 @@
+// now we breakdown why version 2 did not work and find out how retool likes to see the query
+
+console.log("Query Started");
+   // This line logs "Query Started" to the console, indicating the beginning of the query's execution. [cite: 3]
+
+   const uploadedFile = csvUpload.value[0];
+   // We access the first file object from the csvUpload.value array.
+   // This assumes that csvUpload.value will always contain an array of uploaded files.
+   // [cite: 3, 4]
+
+   console.log("uploadedFile:", uploadedFile);
+   // Log the uploadedFile object to inspect its properties (name, type, base64Data, sizeBytes).
+   // [cite: 4]
+
+   let data = [];
+   // Initialize an empty array named 'data' to store the parsed CSV data.
+   // Each element in this array will be an object representing a row from the CSV.
+   // [cite: 4]
+
+   if (uploadedFile) {
+    // Check if a file has been uploaded (i.e., if uploadedFile is not null or undefined).
+    const base64Content = uploadedFile.base64Data;
+    // Extract the Base64 encoded CSV data from the uploadedFile object.
+
+    const decodedContent = atob(base64Content);
+    // Decode the Base64 encoded CSV data using the atob() function, converting it to a plain text string.
+    console.log("decodedContent:", decodedContent);
+    // Log the decoded CSV content to the console for debugging.
+
+    const lines = decodedContent.split(/\r\n|\n|\r/).map(line => line.trim());
+    // Split the decoded CSV content into an array of lines.
+    // The regular expression /\r\n|\n|\r/ handles different line endings (Windows, Unix, Mac).
+    // .map(line => line.trim()) removes leading/trailing whitespace from each line.
+    // [cite: 6]
+
+    console.log("lines:", lines);
+    // Log the array of lines to the console.
+    // [cite: 6, 7]
+
+    if (lines.length > 0) {
+     // Check if there are any lines in the CSV data.
+     const headers = lines[0].split(',').map(header => header.trim());
+     // Extract the headers (column names) from the first line of the CSV.
+     // Split the line by commas and remove any extra whitespace.
+     // [cite: 7, 8]
+
+     console.log("headers:", headers);
+     // Log the headers array.
+     // [cite: 8]
+
+     for (let i = 1; i < lines.length; i++) {
+      // Iterate over the remaining lines (skipping the header line).
+      const values = lines[i].split(',').map(value => value.trim());
+      // Split each line into an array of values (cell values).
+      // Remove any extra whitespace from each value.
+      // [cite: 9]
+      console.log("values:", values);
+      // Log the array of values for the current row.
+      // [cite: 9]
+
+      if (values.length === headers.length) {
+       // Check if the number of values matches the number of headers.
+       // This ensures that each row has the correct number of columns.
+       const row = {};
+       // Create an empty object to represent the current row of data.
+       // [cite: 9, 10, 11, 12]
+
+       for (let j = 0; j < headers.length; j++) {
+        // Iterate over the headers (and corresponding values).
+        row[headers[j]] = values[j];
+        // Assign each value to its corresponding header (column name) in the row object.
+        // [cite: 10]
+
+       }
+       data.push(row);
+       // Add the constructed row object to the 'data' array.
+       // [cite: 11]
+       console.log("row object:", row);
+       // Log the row object.
+       // [cite: 11, 12]
+
+      }
+     }
+     console.log("Parsed data:", data);
+     // Log the final parsed data array.
+     // [cite: 12, 13]
+
+     return data;
+     // Return the parsed CSV data as an array of objects.
+     // [cite: 13]
+
+    } else {
+     console.log("CSV file is empty");
+     return [];
+     // Return an empty array if the CSV file has no data lines.
+     // [cite: 14, 15]
+    }
+   } else {
+    console.log("No file uploaded");
+    return [];
+    // Return an empty array if no file was uploaded.
+   }
