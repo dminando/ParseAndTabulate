@@ -1,0 +1,47 @@
+// passes T0-T4 but does NOT populate action column
+
+// prompt:
+/*
+Write a JavaScript function to:
+   1.  Retrieve the Base64 encoded CSV data from the first file in the 'csvUpload.value' array (use csvUpload.value[0].base64Data).
+   2.  Decode the Base64 data.
+   3.  Parse the decoded CSV into an array of objects. The first row defines the object keys.
+   4.  Handle various line endings (\r\n, \n, \r).
+   5.  Remove extra spaces from keys and values.
+   6.  Return the array of objects.
+   7.  Include console logs for debugging (show data at key steps).
+   8.  Safely handle no file upload or an empty CSV (return []).
+*/
+
+
+
+function parseCSVFromUpload() {
+
+// if there is no value uploaded OR the uploaded value is empty, return an empty list
+  if (!csvUpload.value || csvUpload.value.length === 0) return [];
+  
+  const base64Data = csvUpload.value[0].base64Data;
+  console.log('Base64 Data:', base64Data);
+  
+  const decodedData = atob(base64Data);
+  console.log('Decoded Data:', decodedData);
+  
+  const csvData = decodedData.replace(/\r\n|\r|\n/g, '\n');
+  const lines = csvData.split('\n').map(line => line.trim()).filter(line => line);
+  
+  if (lines.length === 0) return [];
+    const headers = lines[0].split(',').map(header => header.trim());
+    const result = lines.slice(1).map(line => {
+        const values = line.split(',').map(value => value.trim());
+        return headers.reduce((obj, header, index) => {
+            obj[header] = values[index] || '';
+            return obj;
+        }, {});
+    });
+  
+  console.log('Parsed CSV Result:', result);
+  return result;
+}
+
+return parseCSVFromUpload();
+  
