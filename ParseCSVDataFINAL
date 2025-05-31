@@ -1,0 +1,46 @@
+// Passes all tests and works as intended
+
+
+function processCsvData() {
+    
+    const base64Data = csvUpload.value[0]?.base64Data;                  // 1. Safely access the base64 data of the first file uploaded to the 'csvUpload' component.
+    if (!base64Data) return [];                                         // 2. If no base64 data is available (no file uploaded), return an empty array.
+  
+    const decodedData = atob(base64Data);                               // 3. Decode the Base64 encoded data into a regular string.
+    const normalizedData = decodedData.replace(/\r\n/g, '\n').replace(/\r/g, '\n');    // 4. standardize all potential line endings to (\n) to handle different CSV formats.
+    const lines = normalizedData.split('\n').map(line => line.trim());                 // 5. Split the normalized data into an array of lines, and trim whitespace from each line.
+  
+    let headers = lines[0];                                                            // 6. Extract the headers from the first line.
+    if (headers.charCodeAt(0) === 65279) {
+      headers = headers.slice(1);                                                      // 7. Check for and remove the Byte Order Mark (BOM) if present at the beginning of the headers string.
+    } else if (headers.charCodeAt(0) === 239 && headers.charCodeAt(1) === 187 && headers.charCodeAt(2) === 191) { // 
+      headers = headers.slice(3);
+    }
+    headers = headers.split(',').map(header => header.trim());                         // 8. Split the processed headers string into an array of individual header names and trim any extra whitespace
+    console.log('Lines:',lines);
+
+    const result = lines.slice(1).map(line => {                                        // 9. create an array of objects with Lines(1) representing a row of data 
+    const values = line.split(',').map(value => value.trim());                         // 10. Split each line into an array of values and trim whitespace
+    const obj = {};                                                                    // 11. Create an empty object to store the key-value pairs for the current row
+        headers.forEach((header, index) => {                                           // 12. Iterate through the headers and assign the corresponding values to the object.
+          obj[header] = values[index] || '';                                             // 13. Assign the value to the object using the header as the key. Use an empty string if the value is undefined.
+        // Convert percentage columns to numbers immediately
+            if (header === 'User Adoption (%)' || header === 'Conversion Rate (%)') {  // 14. If the header is 'User Adoption (%)' or 'Conversion Rate (%)', convert the value to a floating-point number.
+              obj[header] = parseFloat(obj[header]) || 0;                                //     Use 0 as a default if the parsing fails (e.g., if the value is not a valid number).
+            }   
+          });
+
+        obj['Action'] = (obj['User Adoption (%)'] <= 30 || obj['Conversion Rate (%)'] <= 20) ?  // 15. determine the 'Action' value based on the percentage values
+         "needs follow-up on training/QA" : "";
+        return obj;                                                                             // 16. Return the created object for the current row.
+        }).filter(obj => obj['Property Name']);                                                 // 17. Filter out any objects where the 'Property Name' is null or an empty string.
+  
+        console.log('Base64 Data:', base64Data);                                                // 18. Log the Base64 data (for debugging)
+        console.log('Decoded Data:', decodedData.slice(0, 50));
+        console.log('Processed Array:', result);    
+  
+        return result;                                                                          // Return final Array of objects (console output)
+  }
+  
+  return processCsvData();                                                                      // execute the main function
+
